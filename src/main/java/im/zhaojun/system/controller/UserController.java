@@ -36,8 +36,9 @@ public class UserController {
     @GetMapping("/list")
     @ResponseBody
     public PageResultBean<User> getList(@RequestParam(value = "page", defaultValue = "1") int page,
-                                          @RequestParam(value = "limit", defaultValue = "10")int limit) {
-        List<User> users = userService.selectAllWithDept(page, limit);
+                                        @RequestParam(value = "limit", defaultValue = "10") int limit,
+                                        User userQuery) {
+        List<User> users = userService.selectAllWithDept(page, limit, userQuery);
         PageInfo<User> userPageInfo = new PageInfo<>(users);
         return new PageResultBean<>(userPageInfo.getTotal(), userPageInfo.getList());
     }
@@ -59,7 +60,7 @@ public class UserController {
     @OperationLog("编辑角色")
     @PutMapping
     @ResponseBody
-    public ResultBean update(@Valid User user, @RequestParam(value = "role[]", required = false) Integer roleIds[]) {
+    public ResultBean update(@Valid User user, @RequestParam(value = "role[]", required = false) Integer[] roleIds) {
         userService.update(user, roleIds);
         return ResultBean.success();
     }
@@ -67,12 +68,12 @@ public class UserController {
     @OperationLog("新增用户")
     @PostMapping
     @ResponseBody
-    public ResultBean add(@Validated(Create.class) User user, @RequestParam(value = "role[]", required = false) Integer roleIds[]) {
+    public ResultBean add(@Validated(Create.class) User user, @RequestParam(value = "role[]", required = false) Integer[] roleIds) {
         return ResultBean.success(userService.add(user, roleIds));
     }
 
     @OperationLog("禁用账号")
-    @PostMapping("/{userId}/disable")
+    @PostMapping("/{userId:\\d+}/disable")
     @ResponseBody
     public ResultBean disable(@PathVariable("userId") Integer userId) {
         return ResultBean.success(userService.disableUserByID(userId));
@@ -106,5 +107,4 @@ public class UserController {
         userService.updatePasswordByUserId(userId, password);
         return ResultBean.success();
     }
-
 }

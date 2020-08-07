@@ -1,5 +1,6 @@
 package im.zhaojun.common.shiro.realm;
 
+import im.zhaojun.common.shiro.ShiroActionProperties;
 import im.zhaojun.common.util.ShiroUtil;
 import im.zhaojun.system.model.User;
 import im.zhaojun.system.service.UserService;
@@ -22,6 +23,9 @@ import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * 根据用户名密码校验的 Realm.
+ */
 @Component
 public class UserNameRealm extends AuthorizingRealm {
 
@@ -32,6 +36,9 @@ public class UserNameRealm extends AuthorizingRealm {
 
     @Resource
     private SessionDAO sessionDAO;
+
+    @Resource
+    private ShiroActionProperties shiroActionProperties;
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -63,31 +70,46 @@ public class UserNameRealm extends AuthorizingRealm {
             throw new UnknownAccountException();
         }
         // 如果账号被锁定, 则抛出异常, (超级管理员除外)
-        if (ShiroUtil.USER_LOCK.equals(user.getStatus()) && !ShiroUtil.getSuperAdminUsername().equals(username)) {
+        if (ShiroUtil.USER_LOCK.equals(user.getStatus()) && !shiroActionProperties.getSuperAdminUsername().equals(username)) {
             throw new LockedAccountException();
         }
         return new SimpleAuthenticationInfo(user, user.getPassword(), ByteSource.Util.bytes(user.getSalt()), super.getName());
     }
 
     public void clearAuthCacheByUserId(Integer userId) {
-        //获取所有session
+        // 获取所有 session
         Collection<Session> sessions = sessionDAO.getActiveSessions();
         for (Session session : sessions) {
-            //获取session登录信息。
+            // 获取 session 登录信息。
             Object obj = session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
             if (obj instanceof SimplePrincipalCollection) {
                 // 强转
                 SimplePrincipalCollection spc = (SimplePrincipalCollection) obj;
                 User user = new User();
                 BeanUtils.copyProperties(spc.getPrimaryPrincipal(), user);
-                //判断用户，匹配用户ID。
+                // 判断用户, 匹配用户ID.
                 if (userId.equals(user.getUserId())) {
-                    this.clearCachedAuthorizationInfo(spc);
+                    this.doClearCache(spc);
                 }
             }
         }
     }
 
+    public void clearAllAuthCache() {
+        // 获取所有 session
+        Collection<Session> sessions = sessionDAO.getActiveSessions();
+        for (Session session : sessions) {
+            // 获取 session 登录信息。
+            Object obj = session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
+            if (obj instanceof SimplePrincipalCollection) {
+                // 强转
+                SimplePrincipalCollection spc = (SimplePrincipalCollection) obj;
+                User user = new User();
+                BeanUtils.copyProperties(spc.getPrimaryPrincipal(), user);
+                this.doClearCache(spc);
+            }
+        }
+    }
 
     /**
      * 超级管理员拥有所有权限
@@ -95,7 +117,7 @@ public class UserNameRealm extends AuthorizingRealm {
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
         User user = (User) principals.getPrimaryPrincipal();
-        return ShiroUtil.getSuperAdminUsername().equals(user.getUsername()) || super.isPermitted(principals, permission);
+        return shiroActionProperties.getSuperAdminUsername().equals(user.getUsername()) || super.isPermitted(principals, permission);
     }
 
     /**
@@ -104,6 +126,6 @@ public class UserNameRealm extends AuthorizingRealm {
     @Override
     public boolean hasRole(PrincipalCollection principals, String roleIdentifier) {
         User user = (User) principals.getPrimaryPrincipal();
-        return ShiroUtil.getSuperAdminUsername().equals(user.getUsername()) || super.hasRole(principals, roleIdentifier);
+        return shiroActionProperties.getSuperAdminUsername().equals(user.getUsername()) || super.hasRole(principals, roleIdentifier);
     }
 }

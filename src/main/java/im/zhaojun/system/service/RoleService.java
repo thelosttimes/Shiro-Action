@@ -35,13 +35,17 @@ public class RoleService {
         return roleMapper.selectByPrimaryKey(roleId);
     }
 
-    public List<Role> selectAll(int page, int limit) {
+    public List<Role> selectAll(int page, int limit, Role roleQuery) {
         PageHelper.startPage(page, limit);
-        return selectAll();
+        return selectAllByQuery(roleQuery);
     }
 
     public List<Role> selectAll() {
         return roleMapper.selectAll();
+    }
+
+    public List<Role> selectAllByQuery(Role roleQuery) {
+        return roleMapper.selectAllByQuery(roleQuery);
     }
 
     @Transactional
@@ -63,7 +67,9 @@ public class RoleService {
     @Transactional
     public void grantMenu(Integer roleId, Integer[] menuIds) {
         roleMenuMapper.deleteByRoleId(roleId);
-        roleMenuMapper.insertRoleMenus(roleId, menuIds);
+        if (menuIds != null && menuIds.length != 0) {
+            roleMenuMapper.insertRoleMenus(roleId, menuIds);
+        }
         clearRoleAuthCache(roleId);
     }
 
@@ -75,7 +81,12 @@ public class RoleService {
     @Transactional
     public void grantOperator(Integer roleId, Integer[] operatorIds) {
         roleOperatorMapper.deleteByRoleId(roleId);
-        roleOperatorMapper.insertRoleOperators(roleId, operatorIds);
+        if (operatorIds != null && operatorIds.length != 0) {
+            for (int i = 0; i < operatorIds.length; i++) {
+                operatorIds[i] = operatorIds[i] - 10000;
+            }
+            roleOperatorMapper.insertRoleOperators(roleId, operatorIds);
+        }
         clearRoleAuthCache(roleId);
     }
 
@@ -99,7 +110,6 @@ public class RoleService {
         return roleOperatorMapper.getOperatorsByRoleId(roleId);
     }
 
-
     private void clearRoleAuthCache(Integer roleId) {
         // 获取该角色下的所有用户.
         List<Integer> userIds = userRoleMapper.selectUserIdByRoleId(roleId);
@@ -109,5 +119,4 @@ public class RoleService {
             userNameRealm.clearAuthCacheByUserId(userId);
         }
     }
-
 }

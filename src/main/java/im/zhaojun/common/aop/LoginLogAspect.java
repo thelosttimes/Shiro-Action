@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 
 @Aspect
 @Component
-@ConditionalOnProperty(value = "log.login", havingValue = "true")
+@ConditionalOnProperty(value = "shiro-action.log.login", havingValue = "true")
 public class LoginLogAspect {
 
     @Resource
@@ -24,7 +24,6 @@ public class LoginLogAspect {
 
     @Pointcut("execution(im.zhaojun.common.util.ResultBean im.zhaojun.system.controller..LoginController.login(im.zhaojun.system.model.User, String) )")
     public void loginLogPointCut() {}
-
 
     @After("loginLogPointCut()")
     public void recordLoginLog(JoinPoint joinPoint) {

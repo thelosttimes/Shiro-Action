@@ -23,7 +23,7 @@
             <!-- logo 区域 -->
             <div class="layui-logo">
                 <img th:src="@{/images/security.png}" alt="logo"/>
-                <cite>&nbsp;Z-Admin&emsp;</cite>
+                <cite>&nbsp;Shiro Action&emsp;</cite>
             </div>
 
             <!-- 头部区域 -->
@@ -41,6 +41,10 @@
 
             <!-- 头像区域 -->
             <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a lay-event="github" title="Github 地址"><img th:src="@{/images/github.png}" alt="" style="height: 18px;"/></a>
+                </li>
+
                 <li class="layui-nav-item">
                     <a lay-event="clear" title="清理标签缓存"><img th:src="@{/images/clear.png}" alt="" style="height: 18px;"/></a>
                 </li>
@@ -72,7 +76,7 @@
             <div class="layui-side-scroll">
                 <ul class="layui-nav layui-nav-tree" lay-filter="lay-nav" lay-accordion="true">
                     <li class="layui-nav-item layui-this">
-                        <a lay-url="welcome" lay-id="home">
+                        <a data-th-lay-url="@{/welcome(timestamp=${new java.util.Date().getTime()})}" lay-id="home">
                             <i class="layui-icon layui-icon-home"></i>&emsp;<cite>首页</cite>
                         </a>
                     </li>
@@ -100,12 +104,12 @@
                 <div class="layui-icon admin-tabs-control layui-icon-refresh-3" lay-event="refresh"></div>
                 <div class="layui-tab" lay-unauto lay-allowclose="true" lay-filter="lay-tab">
                     <ul class="layui-tab-title">
-                        <li lay-id="home" lay-url="welcome" class="layui-this"><i
+                        <li lay-id="home" data-th-lay-url="@{/welcome(timestamp=${new java.util.Date().getTime()})}" class="layui-this"><i
                                 class="layui-icon layui-icon-home"></i></li>
                     </ul>
                     <div class="layui-tab-content">
                         <div class="layui-tab-item layui-show">
-                            <iframe src="welcome" class="layui-iframe"></iframe>
+                            <iframe th:src="@{/welcome(timestamp=${new java.util.Date().getTime()})}" class="layui-iframe"></iframe>
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,5 @@
 package im.zhaojun.system.service;
 
-import im.zhaojun.common.util.TreeUtil;
 import im.zhaojun.system.mapper.DeptMapper;
 import im.zhaojun.system.model.Dept;
 import org.springframework.stereotype.Service;
@@ -15,65 +14,59 @@ public class DeptService {
     @Resource
     private DeptMapper deptMapper;
 
+    public Dept insert(Dept dept) {
+        int maxOrderNum = deptMapper.selectMaxOrderNum();
+        dept.setOrderNum(maxOrderNum + 1);
+        deptMapper.insert(dept);
+        return dept;
+    }
+
     public int deleteByPrimaryKey(Integer deptId) {
         return deptMapper.deleteByPrimaryKey(deptId);
     }
 
-    public int insert(Dept dept) {
-        int maxOrderNum = deptMapper.selectMaxOrderNum();
-        dept.setOrderNum(maxOrderNum + 1);
-        return deptMapper.insert(dept);
-    }
-
-    public int insertSelective(Dept dept) {
-        return deptMapper.insertSelective(dept);
+    public Dept updateByPrimaryKey(Dept dept) {
+        deptMapper.updateByPrimaryKey(dept);
+        return dept;
     }
 
     public Dept selectByPrimaryKey(Integer deptId) {
         return deptMapper.selectByPrimaryKey(deptId);
     }
 
-    public int updateByPrimaryKeySelective(Dept dept) {
-        return deptMapper.updateByPrimaryKeySelective(dept);
-    }
 
-    public int updateByPrimaryKey(Dept dept) {
-        return deptMapper.updateByPrimaryKey(dept);
-    }
+    /**
+     * 删除当前部门及子部门.
+     */
+    public void deleteCascadeByID(Integer deptId) {
 
-    public void deleteByIDAndChildren(Integer deptId) {
-        // 删除子节点
         List<Integer> childIDList = deptMapper.selectChildrenIDByPrimaryKey(deptId);
         for (Integer childId : childIDList) {
-            deleteByIDAndChildren(childId);
+            deleteCascadeByID(childId);
         }
-        // 删除自身
+
         deleteByPrimaryKey(deptId);
     }
 
+    /**
+     * 根据父 ID 查询部门
+     */
     public List<Dept> selectByParentId(Integer parentId) {
         return deptMapper.selectByParentId(parentId);
-    }
-
-    /**
-     * 查找所有的部门
-     */
-    public List<Dept> selectAllDept() {
-        return deptMapper.selectAll();
     }
 
     /**
      * 查找所有的部门的树形结构
      */
     public List<Dept> selectAllDeptTree() {
-        return toTree(selectAllDept());
+        return deptMapper.selectAllTree();
     }
 
     /**
      * 获取所有菜单并添加一个根节点 (树形结构)
      */
     public List<Dept> selectAllDeptTreeAndRoot() {
-        List<Dept> deptList = toTree(selectAllDept());
+        List<Dept> deptList = selectAllDeptTree();
         Dept root = new Dept();
         root.setDeptId(0);
         root.setDeptName("根部门");
@@ -81,13 +74,6 @@ public class DeptService {
         List<Dept> rootList = new ArrayList<>();
         rootList.add(root);
         return rootList;
-    }
-
-    /**
-     * 调用工具类, 将部门列表转化为部门树
-     */
-    private List<Dept> toTree(List<Dept> depts) {
-        return TreeUtil.toTree(depts, "deptId", "parentId", "children", Dept.class);
     }
 
     public void swapSort(Integer currentId, Integer swapId) {

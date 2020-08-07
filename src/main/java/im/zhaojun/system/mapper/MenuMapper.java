@@ -12,11 +12,7 @@ public interface MenuMapper {
 
     int insert(Menu menu);
 
-    int insertSelective(Menu menu);
-
     Menu selectByPrimaryKey(Integer menuId);
-
-    int updateByPrimaryKeySelective(Menu menu);
 
     int updateByPrimaryKey(Menu menu);
 
@@ -24,6 +20,8 @@ public interface MenuMapper {
      * 获取所有菜单
      */
     List<Menu> selectAll();
+
+    List<Menu> selectAllTree();
 
     List<Menu> selectAllMenuAndCountOperator();
 
@@ -37,7 +35,7 @@ public interface MenuMapper {
     /**
      * 查找某菜单的所有子类 ID
      */
-    List<Integer> selectChildrenIDByPrimaryKey(@Param("menuId")Integer menuId);
+    List<Integer> selectChildrenIDByPrimaryKey(@Param("menuId") Integer menuId);
 
     /**
      * 获取某个用户的所拥有的导航菜单
@@ -49,7 +47,7 @@ public interface MenuMapper {
     /**
      * 交换两个菜单的顺序
      */
-    int swapSort(@Param("currentId")Integer currentId, @Param("swapId")Integer swapId);
+    int swapSort(@Param("currentId") Integer currentId, @Param("swapId") Integer swapId);
 
     int selectMaxOrderNum();
 

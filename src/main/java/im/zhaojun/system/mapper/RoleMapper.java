@@ -11,15 +11,13 @@ public interface RoleMapper {
 
     int insert(Role role);
 
-    int insertSelective(Role role);
-
     Role selectByPrimaryKey(Integer roleId);
-
-    int updateByPrimaryKeySelective(Role role);
 
     int updateByPrimaryKey(Role role);
 
     List<Role> selectAll();
+
+    List<Role> selectAllByQuery(Role roleQuery);
 
     int count();
 }

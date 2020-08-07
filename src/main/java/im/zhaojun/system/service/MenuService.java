@@ -1,5 +1,6 @@
 package im.zhaojun.system.service;
 
+import im.zhaojun.common.shiro.ShiroActionProperties;
 import im.zhaojun.common.util.ShiroUtil;
 import im.zhaojun.common.util.TreeUtil;
 import im.zhaojun.system.mapper.MenuMapper;
@@ -26,6 +27,13 @@ public class MenuService {
     @Resource
     private OperatorMapper operatorMapper;
 
+    @Resource
+    private ShiroActionProperties shiroActionProperties;
+
+    public Menu selectByPrimaryKey(Integer id) {
+        return menuMapper.selectByPrimaryKey(id);
+    }
+
     /**
      * 获取所有菜单
      */
@@ -40,23 +48,18 @@ public class MenuService {
         return menuMapper.selectByParentId(parentId);
     }
 
-    public Menu selectByPrimaryKey(Integer id) {
-        return menuMapper.selectByPrimaryKey(id);
-    }
-
     /**
      * 获取所有菜单 (树形结构)
      */
-    public List<Menu> getALLMenuTree() {
-        List<Menu> menus = selectAll();
-        return toTree(menus);
+    public List<Menu> getALLTree() {
+        return menuMapper.selectAllTree();
     }
 
     /**
      * 获取所有菜单并添加一个根节点 (树形结构)
      */
     public List<Menu> getALLMenuTreeAndRoot() {
-        List<Menu> allMenuTree = getALLMenuTree();
+        List<Menu> allMenuTree = getALLTree();
         return addRootNode("导航目录", 0, allMenuTree);
     }
 
@@ -64,8 +67,7 @@ public class MenuService {
      * 获取所有菜单并统计菜单下的操作权限数 (树形结构)
      */
     public List<Menu> getALLMenuAndCountOperatorTree() {
-        List<Menu> menus = menuMapper.selectAllMenuAndCountOperator();
-        return toTree(menus);
+        return menuMapper.selectAllMenuAndCountOperator();
     }
 
     /**
@@ -73,13 +75,7 @@ public class MenuService {
      */
     public List<Menu> selectCurrentUserMenuTree() {
         User user = ShiroUtil.getCurrentUser();
-        List<Menu> menus;
-        if (ShiroUtil.getSuperAdminUsername().equals(user.getUsername())) {
-            menus = menuMapper.selectAll();
-        } else {
-            menus = menuMapper.selectMenuByUserName(user.getUsername());
-        }
-        return toTree(menus);
+        return selectMenuTreeVOByUsername(user.getUsername());
     }
 
     /**
@@ -87,7 +83,7 @@ public class MenuService {
      */
     public List<Menu> selectMenuTreeVOByUsername(String username) {
         List<Menu> menus;
-        if (ShiroUtil.getSuperAdminUsername().equals(username)) {
+        if (shiroActionProperties.getSuperAdminUsername().equals(username)) {
             menus = menuMapper.selectAll();
         } else {
             menus = menuMapper.selectMenuByUserName(username);
@@ -99,7 +95,7 @@ public class MenuService {
      * 获取导航菜单中的所有叶子节点
      */
     public List<Menu> getLeafNodeMenu() {
-        List<Menu> allMenuTreeVO = getALLMenuTree();
+        List<Menu> allMenuTreeVO = getALLTree();
         return TreeUtil.getAllLeafNode(allMenuTreeVO);
     }
 

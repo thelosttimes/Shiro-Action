@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/zhaojun1998/Shiro-Action.svg?branch=master)](https://travis-ci.org/zhaojun1998/Shiro-Action)
 ![https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square](https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3b39480c887b42f1875c0210817b500f)](https://www.codacy.com/app/zhaojun1998/Shiro-Action?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zhaojun1998/Shiro-Action&amp;utm_campaign=Badge_Grade)
-![https://img.shields.io/badge/springboot-2.0.6-orange.svg?style=flat-square](https://img.shields.io/badge/springboot-2.0.4-yellow.svg?longCache=true&style=popout-square)
+![https://img.shields.io/badge/springboot-2.0.6-orange.svg?style=flat-square](https://img.shields.io/badge/springboot-2.0.6-yellow.svg?longCache=true&style=popout-square)
 ![https://img.shields.io/badge/apache%20shiro-1.4.0-green.svg?style=flat-square](https://img.shields.io/badge/apache%20shiro-1.4.0-green.svg?longCache=true&style=flat-square)
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/zhaojun1998/Shiro-Action.svg?style=flat-square)
 
@@ -18,7 +18,6 @@
 普通用户账号: `user`, 密码: `123456`.
 
 > 为了不影响其他人的浏览体验, 请尽量不要进行删除类的敏感操作.  `admin` 为超级管理员, 自动拥有全部权限.
-
 
 ## 系统特色
 
@@ -75,18 +74,17 @@ spring.datasource.url=jdbc:mysql://127.0.0.1:3306/shiro_action?useSSL=false&char
 
 ![](https://cdn.jun6.net/201905292303_211.png)
 
-![](https://cdn.jun6.net/201905052146_570.png)
+![](https://cdn.jun6.net/201906302159_326.png)
 
-![](https://cdn.jun6.net/2019/05/05/5ccee9679211e.png)
+![](https://cdn.jun6.net/2019/06/30/5d18c0a85b38a.png)
 
-![](https://cdn.jun6.net/2019/05/05/5ccee96794cb8.png)
+![](https://cdn.jun6.net/2019/06/30/5d18c0a849285.png)
 
-![](https://cdn.jun6.net/2019/05/05/5ccee96789cb8.png)
+![](https://cdn.jun6.net/2019/06/30/5d18c1e09d314.png)
 
-![](https://cdn.jun6.net/2019/05/05/5ccee967871ab.png)
+![](https://cdn.jun6.net/2019/06/30/5d18c1ad27580.png)
 
-![](https://cdn.jun6.net/2019/05/05/5ccee9678c74a.png)
-
+![](https://cdn.jun6.net/2019/06/30/5d18c1ad29d05.png)
 
 ### 技术选型
 
@@ -94,7 +92,6 @@ spring.datasource.url=jdbc:mysql://127.0.0.1:3306/shiro_action?useSSL=false&char
 
 * 前端框架: [Layui](https://www.layui.com/)
 * 后台模板: [Z-Admin](https://github.com/zhaojun1998/Z-Admin/)
-
 
 #### 后端
 
@@ -104,6 +101,11 @@ spring.datasource.url=jdbc:mysql://127.0.0.1:3306/shiro_action?useSSL=false&char
 * Druid 1.1.10
 * PageHelper 1.2.9
 * Shiro-Redis 3.2.3
+
+#### 其他工具类
+
+* OAuth2 认证工具类: [JustAuth](https://gitee.com/yadong.zhang/JustAuth)
+* Hutool : [https://hutool.cn/](https://hutool.cn/)
 
 ### 反馈交流
 

@@ -12,7 +12,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * 修改后的 authc 过滤器, 添加对 AJAX 请求的支持.
  */
@@ -23,23 +22,31 @@ public class RestFormAuthenticationFilter extends FormAuthenticationFilter {
 
     @Override
     protected boolean pathsMatch(String path, ServletRequest request) {
+        boolean flag;
         String requestURI = this.getPathWithinApplication(request);
 
         String[] strings = path.split("==");
 
         if (strings.length <= 1) {
             // 普通的 URL, 正常处理
-            return this.pathsMatch(strings[0], requestURI);
+            flag = this.pathsMatch(strings[0], requestURI);
         } else {
             // 获取当前请求的 http method.
             String httpMethod = WebUtils.toHttp(request).getMethod().toUpperCase();
             // 匹配当前请求的 url 和 http method 与过滤器链中的的是否一致
-            return httpMethod.equals(strings[1].toUpperCase()) && this.pathsMatch(strings[0], requestURI);
+            flag = httpMethod.equals(strings[1].toUpperCase()) && this.pathsMatch(strings[0], requestURI);
         }
+
+        if (flag) {
+            log.debug("URL : [{}] matching authc filter : [{}]", requestURI, path);
+        }
+        return flag;
     }
 
     /**
-     * 当访问被拒接时
+     * 当没有权限被拦截时:
+     *          如果是 AJAX 请求, 则返回 JSON 数据.
+     *          如果是普通请求, 则跳转到配置 UnauthorizedUrl 页面.
      */
     @Override
     protected boolean onAccessDenied(ServletRequest request,

@@ -4,6 +4,7 @@ import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
 import im.zhaojun.common.shiro.EnhanceModularRealmAuthenticator;
 import im.zhaojun.common.shiro.OAuth2Helper;
 import im.zhaojun.common.shiro.RestShiroFilterFactoryBean;
+import im.zhaojun.common.shiro.ShiroActionProperties;
 import im.zhaojun.common.shiro.credential.RetryLimitHashedCredentialsMatcher;
 import im.zhaojun.common.shiro.filter.OAuth2AuthenticationFilter;
 import im.zhaojun.common.shiro.filter.RestAuthorizationFilter;
@@ -16,7 +17,6 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.crazycake.shiro.RedisCacheManager;
@@ -42,6 +42,9 @@ public class ShiroConfig {
     @Resource
     private ShiroService shiroService;
 
+    @Resource
+    private ShiroActionProperties shiroActionProperties;
+
     @Value("${spring.redis.host}")
     private String redisHost;
 
@@ -49,8 +52,8 @@ public class ShiroConfig {
     private Integer redisPort;
 
     @Bean
-    public ShiroFilterFactoryBean shirFilter(SecurityManager securityManager) {
-        ShiroFilterFactoryBean shiroFilterFactoryBean = new RestShiroFilterFactoryBean();
+    public RestShiroFilterFactoryBean restShiroFilterFactoryBean(SecurityManager securityManager) {
+        RestShiroFilterFactoryBean shiroFilterFactoryBean = new RestShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         shiroFilterFactoryBean.setLoginUrl("/login");
         shiroFilterFactoryBean.setUnauthorizedUrl("/403");
@@ -64,7 +67,6 @@ public class ShiroConfig {
         return shiroFilterFactoryBean;
     }
 
-
     /**
      * 注入 securityManager
      */
@@ -72,27 +74,32 @@ public class ShiroConfig {
     public SecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setSessionManager(sessionManager());
-        securityManager.setRealms(Arrays.asList(userNameRealm(), oAuth2GithubRealm(), oAuth2GitteRealm()));
+        securityManager.setRealms(Arrays.asList(userNameRealm(), oAuth2GithubRealm(), oAuth2GiteeRealm()));
         ModularRealmAuthenticator authenticator = new EnhanceModularRealmAuthenticator();
         securityManager.setAuthenticator(authenticator);
-        authenticator.setRealms(Arrays.asList(userNameRealm(), oAuth2GithubRealm(), oAuth2GitteRealm()));
+        authenticator.setRealms(Arrays.asList(userNameRealm(), oAuth2GithubRealm(), oAuth2GiteeRealm()));
         SecurityUtils.setSecurityManager(securityManager);
         return securityManager;
     }
 
+    /**
+     * Github 登录 Realm
+     */
     @Bean
     public OAuth2GithubRealm oAuth2GithubRealm() {
         return new OAuth2GithubRealm();
     }
 
+    /**
+     * Gitee 登录 Realm
+     */
     @Bean
-    public OAuth2GiteeRealm oAuth2GitteRealm() {
+    public OAuth2GiteeRealm oAuth2GiteeRealm() {
         return new OAuth2GiteeRealm();
     }
 
-
     /**
-     * 自定义 Realm
+     * 用户名密码登录 Realm
      */
     @Bean
     public UserNameRealm userNameRealm() {
@@ -102,6 +109,9 @@ public class ShiroConfig {
         return userNameRealm;
     }
 
+    /**
+     * 用户名密码登录密码匹配器
+     */
     @Bean
     public HashedCredentialsMatcher hashedCredentialsMatcher() {
         return new RetryLimitHashedCredentialsMatcher("md5");
@@ -116,7 +126,7 @@ public class ShiroConfig {
     public RedisCacheManager redisCacheManager() {
         RedisCacheManager redisCacheManager = new RedisCacheManager();
         redisCacheManager.setRedisManager(redisManager());
-        redisCacheManager.setExpire(600);
+        redisCacheManager.setExpire(shiroActionProperties.getPermsCacheTimeout() == null ? 3600 : shiroActionProperties.getPermsCacheTimeout());
         redisCacheManager.setPrincipalIdFieldName("userId");
         return redisCacheManager;
     }
@@ -131,7 +141,7 @@ public class ShiroConfig {
     @Bean
     public RedisSessionDAO redisSessionDAO() {
         RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
-        redisSessionDAO.setExpire(1800);
+        redisSessionDAO.setExpire(shiroActionProperties.getSessionTimeout() == null ? 1800 : shiroActionProperties.getSessionTimeout());
         redisSessionDAO.setRedisManager(redisManager());
         redisSessionDAO.setSessionInMemoryEnabled(false);
         return redisSessionDAO;
@@ -141,6 +151,7 @@ public class ShiroConfig {
     public DefaultWebSessionManager sessionManager() {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionDAO(redisSessionDAO());
+        sessionManager.setSessionIdUrlRewritingEnabled(false);
         return sessionManager;
     }
 }

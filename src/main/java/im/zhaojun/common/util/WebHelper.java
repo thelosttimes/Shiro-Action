@@ -17,7 +17,7 @@ public class WebHelper {
      */
     public static boolean isAjaxRequest(HttpServletRequest request) {
         String requestedWith = request.getHeader("x-requested-with");
-        return requestedWith != null && "XMLHttpRequest".equalsIgnoreCase(requestedWith);
+        return "XMLHttpRequest".equalsIgnoreCase(requestedWith);
     }
 
     /**
@@ -46,6 +46,15 @@ public class WebHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 获取当前请求的 Http Method
+     * @return
+     */
+    public static String getRequestHTTPMethod() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        return request.getMethod();
     }
 
 }

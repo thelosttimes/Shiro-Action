@@ -19,10 +19,7 @@ public class EnhanceModularRealmAuthenticator extends ModularRealmAuthenticator 
     private static final Logger log = LoggerFactory.getLogger(EnhanceModularRealmAuthenticator.class);
 
     /**
-     * ,抛出realm中第一个遇到的异常
-     * @param realms 领域认证器
-     * @param token 认证凭证
-     * @return aggregate
+     * 抛出 realm 中第一个遇到的异常
      */
     @Override
     protected AuthenticationInfo doMultiRealmAuthentication(Collection<Realm> realms, AuthenticationToken token) {
@@ -43,7 +40,7 @@ public class EnhanceModularRealmAuthenticator extends ModularRealmAuthenticator 
 
                 log.trace("Attempting to authenticate token [{}] using realm [{}]", token, realm);
 
-                AuthenticationInfo info = null;
+                AuthenticationInfo info;
                 // 有异常从此处抛出
                 info = realm.getAuthenticationInfo(token);
 

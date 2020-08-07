@@ -29,8 +29,9 @@ public class RoleController {
     @GetMapping("/list")
     @ResponseBody
     public PageResultBean<Role> getList(@RequestParam(value = "page", defaultValue = "1") int page,
-                                        @RequestParam(value = "limit", defaultValue = "10")int limit) {
-        List<Role> roles = roleService.selectAll(page, limit);
+                                        @RequestParam(value = "limit", defaultValue = "10")int limit,
+                                        Role roleQuery) {
+        List<Role> roles = roleService.selectAll(page, limit, roleQuery);
         PageInfo<Role> rolePageInfo = new PageInfo<>(roles);
         return new PageResultBean<>(rolePageInfo.getTotal(), rolePageInfo.getList());
     }
@@ -75,19 +76,16 @@ public class RoleController {
     @OperationLog("为角色授予菜单")
     @PostMapping("/{roleId}/grant/menu")
     @ResponseBody
-    public ResultBean grantMenu(@PathVariable("roleId") Integer roleId, @RequestParam("menuIds[]") Integer[] menuIds) {
+    public ResultBean grantMenu(@PathVariable("roleId") Integer roleId, @RequestParam(value = "menuIds[]", required = false) Integer[] menuIds) {
         roleService.grantMenu(roleId, menuIds);
         return ResultBean.success();
     }
 
 
-    @OperationLog("为角色授予菜单")
+    @OperationLog("为角色授予操作权限")
     @PostMapping("/{roleId}/grant/operator")
     @ResponseBody
-    public ResultBean grantOperator(@PathVariable("roleId") Integer roleId, @RequestParam("operatorIds[]") Integer[] operatorIds) {
-        for (int i = 0; i < operatorIds.length; i++) {
-            operatorIds[i] = operatorIds[i] - 10000;
-        }
+    public ResultBean grantOperator(@PathVariable("roleId") Integer roleId, @RequestParam(value = "operatorIds[]", required = false) Integer[] operatorIds) {
         roleService.grantOperator(roleId, operatorIds);
         return ResultBean.success();
     }
